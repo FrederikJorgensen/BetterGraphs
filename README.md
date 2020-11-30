@@ -173,6 +173,14 @@ First argument is the color you want the edge to be colored.
 graph.colorEdgeOnRightClick("pink");
 ```
 
+<a name="addLabel" href="#addLabel">#</a> graph.<b>addLabel</b>(string, string)
+
+First argument is the node you want the label to point to. Second argument is the text you want to see in the label.
+```js
+// addLabel() example
+graph.addLabel("4", "This is some text.");
+```
+
 ## Roadmap
 ---
 - [x] Change color of vertices
@@ -194,8 +202,7 @@ graph.colorEdgeOnRightClick("pink");
 - [ ] Label pointing to a vertex
 - [ ] Move graph to a specific coordinate
 - [ ] Label pointing to blob
-- [ ] Tooltip to vertex
+- [x] Tooltip to vertex
 - [ ] Tooltip to blob
 - [ ] And re-layouting graphs (user can drag nodes to desired positions and take a snapshot)
 - [ ] Hull tube
-- [x] Right click edge to change color
