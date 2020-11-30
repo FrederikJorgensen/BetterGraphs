@@ -152,7 +152,7 @@ graph.contractEdge("1", "2");
 
 ## Roadmap
 ---
-- [x] Add live examples of methods
+- [ ] Add live examples of methods
 - [ ] Ability for some edges to be curved
 - [ ] Label pointing to a vertex
 - [ ] Move graph to a specific coordinate
