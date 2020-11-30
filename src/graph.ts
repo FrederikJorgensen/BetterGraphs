@@ -13,8 +13,6 @@ interface Link extends d3.SimulationLinkDatum<Node> {
 }
 
 export default class Graph {
-  [x: string]: any;
-
   // TODO: Find type for SVG
   svg: any;
 
@@ -34,7 +32,6 @@ export default class Graph {
 
   simulation: any;
 
-  // nodeSvg: any;
   lastId: number;
 
   constructor(container: string) {
@@ -64,17 +61,6 @@ export default class Graph {
       .style('stroke', '#a0c7e8')
       .style('fill', 'none')
       .style('stroke-width', '6.5px');
-  }
-
-  connect(d, i) {
-    const dsx = d.source.dx ? d.source.dx : 0;
-    const dsy = d.source.dy ? d.source.dy : 0;
-    const dtx = d.target.dx ? d.target.dx : 0;
-    const dty = d.target.dy ? d.target.dy : 0;
-    return `M${d.source.x + dsx},${height - d.source.y + dsy
-    }V${height - (3 * (d.source.y + dsy) + 4 * (d.target.y + dty)) / 7
-    }H${d.target.x + dtx
-    }V${height - (d.target.y - dty)}`;
   }
 
   linkDis() {
@@ -108,10 +94,38 @@ export default class Graph {
       .attr('cy', (d) => d.y);
   }
 
+  moveArrow(node: Node) {
+    const nodeSvg = d3.select(`#graph-node-${this.labelledNode.id}`);
+
+    const nod = document.getElementById(`graph-node-${this.labelledNode.id}`);
+    const x = nod.getAttribute('cx');
+    const y = nod.getAttribute('cy');
+
+    this.arrow
+      .attr('x1', x - 70)
+      .attr('y1', y)
+      .attr('x2', x - nodeSvg.attr('r') - 4)
+      .attr('y2', y);
+
+    const { top } = document
+      .getElementById('arrow-line')
+      .getBoundingClientRect();
+    const { left } = document
+      .getElementById('arrow-line')
+      .getBoundingClientRect();
+
+    this.tooltip
+      .html('yep')
+      .style('opacity', 1)
+      .style('left', `${left}px`)
+      .style('top', `${top}px`);
+  }
+
   handleOnTick() {
     this.moveCircle();
     this.moveLabel();
     this.moveLinks();
+    if (this.arrow) this.moveArrow();
     if (this.nodesInHull) this.highlightSeparatingNodes();
   }
 
@@ -134,6 +148,7 @@ export default class Graph {
       .enter()
       .append('circle')
       .style('fill', '#4682B4')
+      .attr('id', (d) => `graph-node-${d.id}`)
       .style('stroke', '#a0c7e8')
       .style('stroke-width', '5px')
       .style('stroke-opacity', '0.8')
@@ -370,10 +385,26 @@ export default class Graph {
     this.path.attr('d', line(hull(pointArr)));
   }
 
+  createArrow() {
+    this.svg
+      .append('defs')
+      .append('marker')
+      .attr('id', 'arrow')
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 5)
+      .attr('refY', 0)
+      .attr('markerWidth', 4)
+      .attr('markerHeight', 4)
+      .attr('oriten', 'auto')
+      .append('path')
+      .attr('d', 'M0,-5L10,0L0,5');
+  }
+
   load(graph: { nodes: Node; links: Link; }) {
     if (this.svg) this.removeSvg();
     this.createSvg();
     this.addHullPath();
+    this.createArrow();
     this.nodes = graph.nodes;
     this.links = graph.links;
     this.lastId = graph.nodes.length;
@@ -444,12 +475,72 @@ export default class Graph {
     this.restart();
   }
 
+  private findNode(nodeLabel: string) {
+    return this.nodes.find((node: Node) => node.label === nodeLabel);
+  }
+
   private findEdge(sourceNode: string, targetNode: string): Link {
     return this.links.find((link) => {
       const src: Node = link.source;
       const { target } = link;
       return (src.label === sourceNode && target.label === targetNode) || (src.label === targetNode && target.label === sourceNode);
     });
+  }
+
+  addTooltip() {
+    if (this.tooltip) this.tooltip.remove();
+
+    this.tooltip = d3
+      .select(`#${this.container}`)
+      .append('div')
+      .attr('id', 'node-label')
+      .style('opacity', 0);
+  }
+
+  async timeout(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async addLabel(nodeLabel: string, text: string) {
+    this.addTooltip();
+    if (this.arrow) this.arrow.remove();
+
+    const node = this.findNode(nodeLabel);
+    this.labelledNode = node;
+
+    const nodeSvg = d3.select(`#graph-node-${nodeLabel}`);
+    // console.log(nodeSvg.datum().x);
+
+    await this.timeout(2000);
+
+    const nod = document.getElementById(`graph-node-${nodeLabel}`);
+    const x = nod.getAttribute('cx');
+    const y = nod.getAttribute('cy');
+
+    this.arrow = this.svg
+      .append('line')
+      .style('opacity', 1)
+      .attr('id', 'arrow-line')
+      .attr('x1', x - 70)
+      .attr('y1', y)
+      .attr('x2', x - nodeSvg.attr('r') - 4)
+      .attr('y2', y)
+      .attr('marker-end', 'url(#arrow)')
+      .attr('stroke', 'rgb(51, 51, 51)')
+      .attr('stroke-width', '3px');
+
+    const { top } = document
+      .getElementById('arrow-line')
+      .getBoundingClientRect();
+    const { left } = document
+      .getElementById('arrow-line')
+      .getBoundingClientRect();
+
+    this.tooltip
+      .html(text)
+      .style('opacity', 1)
+      .style('left', `${left}px`)
+      .style('top', `${top}px`);
   }
 }
 
