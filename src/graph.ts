@@ -1,5 +1,5 @@
-import * as d3 from "d3";
-import { D3BrushEvent } from "d3";
+// @ts-nocheck
+import * as d3 from 'd3';
 
 interface Node extends d3.SimulationNodeDatum {
   id: number;
@@ -14,16 +14,26 @@ interface Link extends d3.SimulationLinkDatum<Node> {
 
 export default class Graph {
   [x: string]: any;
+
   // TODO: Find type for SVG
   svg: any;
+
   container: string;
+
   width: number;
+
   height: number;
+
   linkSvg: any;
+
   links: Link[];
+
   nodes: Node[];
+
   nodesInHull: Node[];
+
   simulation: any;
+
   // nodeSvg: any;
   lastId: number;
 
@@ -47,35 +57,47 @@ export default class Graph {
 
   createLinkSvg() {
     this.linkSvg = this.svg
-      .selectAll('line')
+      .selectAll('path')
       .data(this.links)
       .enter()
-      .append('line')
-      .on('contextmenu', (event, edge) => {
+      .append('path')
+      .style('stroke', '#a0c7e8')
+      .style('fill', 'none')
+      .style('stroke-width', '3.5px');
+    // .attr('id', (link) => `link-${link.source}-${link.target}`)
+    // .attr('class', 'graphLink')
+    /*       .on('contextmenu', (event, edge) => {
         event.preventDefault();
         this.colorEdge(edge);
-      })
-      .style('stroke', 'black')
-      .style('stroke-width', '10px')
-      .attr('id', (link) => `link-${link.source.id}-${link.target.id}`)
-      .attr('class', 'graphLink')
+      }); */
+  }
+
+  connect(d, i) {
+    const dsx = d.source.dx ? d.source.dx : 0;
+    const dsy = d.source.dy ? d.source.dy : 0;
+    const dtx = d.target.dx ? d.target.dx : 0;
+    const dty = d.target.dy ? d.target.dy : 0;
+    return `M${d.source.x + dsx},${height - d.source.y + dsy
+    }V${height - (3 * (d.source.y + dsy) + 4 * (d.target.y + dty)) / 7
+    }H${d.target.x + dtx
+    }V${height - (d.target.y - dty)}`;
   }
 
   linkDis() {
     return d3
       .forceLink(this.links)
-      .id((d) => d.id)
-      .distance(() => 50)
-      .strength(0.9);
+      .id((d: any) => d.id)
+      .distance(() => 100)
+      .strength(0.4);
   }
 
   moveLinks() {
-    this.svg
-      .selectAll('line')
+    this.linkSvg
       .attr('x1', (d) => d.source.x)
       .attr('y1', (d) => d.source.y)
       .attr('x2', (d) => d.target.x)
-      .attr('y2', (d) => d.target.y);
+      .attr('y2', (d) => d.target.y)
+      .attr('d', linkArc);
   }
 
   moveLabel() {
@@ -103,10 +125,10 @@ export default class Graph {
     this.simulation = d3
       .forceSimulation()
       .force('center', d3.forceCenter(this.width / 2, this.height / 2))
-      .force('x', d3.forceX(this.width / 2).strength(0.1))
-      .force('y', d3.forceY(this.height / 2).strength(0.1))
+      .force('x', d3.forceX(this.width / 2).strength(0.01))
+      .force('y', d3.forceY(this.height / 2).strength(0.01))
       .nodes(this.nodes)
-      .force('charge', d3.forceManyBody().strength(-900))
+      .force('charge', d3.forceManyBody().strength(-100))
       .force('link', this.linkDis())
       .on('tick', () => this.handleOnTick());
   }
@@ -117,22 +139,23 @@ export default class Graph {
       .data(this.nodes)
       .enter()
       .append('circle')
-      .style('fill', '#ea2c62')
-      .attr('r', 25)
+      .style('fill', '#4682B4')
+      .style('stroke', '#a0c7e8')
+      .style('stroke-width', '5px')
+      .style('stroke-opacity', '0.8')
+      .attr('r', 30)
       .call(d3.drag()
-        .on('start', (event, v) => {
+        .on('start', (event, v: any) => {
           if (!event.active) this.simulation.alphaTarget(0.3).restart();
           [v.fx, v.fy] = [v.x, v.y];
         })
-        .on('drag', (event, v) => {
+        .on('drag', (event, v: any) => {
           [v.fx, v.fy] = [event.x, event.y];
-
         })
-        .on('end', (event, v) => {
+        .on('end', (event, v: any) => {
           if (!event.active) this.simulation.alphaTarget(0);
           [v.fx, v.fy] = [null, null];
-        })
-      )
+        }));
   }
 
   createLabels() {
@@ -142,9 +165,9 @@ export default class Graph {
       .enter()
       .append('text')
       .text((node: Node) => (node.label ? node.label : node.id))
-      .attr('dy', 4.5)
-      .attr("text-anchor", "middle")
-      .attr('class', 'graph_label')
+      .attr('dy', 5)
+      .attr('text-anchor', 'middle')
+      .attr('class', 'graph_label');
   }
 
   removeSvg(): void {
@@ -153,7 +176,7 @@ export default class Graph {
 
   changeVerticesColor(subsetOfVertices: string[], color: string, animationTime: number) {
     this.nodeSvg
-      .filter(node => subsetOfVertices.includes(node.label))
+      .filter((node) => subsetOfVertices.includes(node.label))
       .transition()
       .style('fill', color)
       .duration(animationTime);
@@ -163,8 +186,8 @@ export default class Graph {
     this.linkSvg
       .filter((link: Link) => {
         for (const l of subsetOfEdges) {
-          const sourceNode: Node = link.source;
-          const targetNode: Node = link.target;
+          const sourceNode: any = link.source;
+          const targetNode: any = link.target;
           if (l.includes(sourceNode.label) && l.includes(targetNode.label)) return true;
         }
       })
@@ -174,32 +197,32 @@ export default class Graph {
   }
 
   getSelectionOfVertices(vertices: string[]) {
-    return this.nodeSvg.filter((node: Node) => vertices.includes(node.label))
+    return this.nodeSvg.filter((node: Node) => vertices.includes(node.label));
   }
 
   changeSizeOfVertices(vertices: string[], radius: number) {
     const verticesSelection = this.getSelectionOfVertices(vertices);
-    verticesSelection.attr('r', radius)
+    verticesSelection.attr('r', radius);
   }
 
   getEdges(subsetOfEdges: string[][]) {
     return this.linkSvg
       .filter((link: Link) => {
         for (const l of subsetOfEdges) {
-          const sourceNode: Node = link.source;
-          const targetNode: Node = link.target;
+          const sourceNode: any = link.source;
+          const targetNode: any = link.target;
           if (l.includes(sourceNode.label) && l.includes(targetNode.label)) return true;
         }
-      })
+      });
   }
 
-  changeSizeOfEdge(edges: string[][], strokeWidth: number, animationTime: number) {
+  changeSizeOfEdges(edges: string[][], strokeWidth: number) {
     const linkToChange = this.getEdges(edges);
     linkToChange.style('stroke-width', strokeWidth);
   }
 
   private getVertexToChange(vertex: string) {
-    return this.nodeSvg.filter(node => node.label == vertex);
+    return this.nodeSvg.filter((node) => node.label == vertex);
   }
 
   changeAllVerticesColor(color: string, animationTime: number) {
@@ -234,28 +257,27 @@ export default class Graph {
 
   private updateLinkSvg() {
     this.linkSvg
-      .selectAll('line')
-      .data(this.links)
+      .data(this.links, (d) => `v${d.source.id}-v${d.target.id}`)
       .join(
-        enter => enter
+        (enter) => enter
           .append('line')
           .lower()
           .style('stroke', 'black'),
-        update => update,
-        exit => exit.style('stroke', 'green')
+        (update) => update,
+        (exit) => exit.remove(),
       );
   }
 
   private updateNodeSvg() {
     this.nodeSvg
-      .data(this.nodes, node => node.id)
+      .data(this.nodes, (node) => node.id)
       .join(
-        enter => enter
+        (enter) => enter
           .append('circle')
           .style('fill', 'red')
           .attr('r', 20),
-        update => update,
-        exit => exit.remove()
+        (update) => update,
+        (exit) => exit.remove(),
       );
   }
 
@@ -266,7 +288,7 @@ export default class Graph {
   }
 
   removeVertex(vertexToRemove: string) {
-    const nodes: Node[] = this.nodes.filter(node => node.label !== vertexToRemove);
+    const nodes: Node[] = this.nodes.filter((node) => node.label !== vertexToRemove);
     const linksToRemove: Link[] = this.links.filter((link: Link) => link.source.label === vertexToRemove || link.target.label === vertexToRemove);
     linksToRemove.map((link: Link) => this.links.splice(this.links.indexOf(link), 1));
     this.nodes = nodes;
@@ -274,52 +296,52 @@ export default class Graph {
   }
 
   addVertex(vertexToAdd: string) {
-    const node: Node = { id: ++this.lastId, label: vertexToAdd }
+    const node: Node = { id: ++this.lastId, label: vertexToAdd };
     this.nodes.push(node);
     this.restart();
   }
 
   addEdge(firstVertex: string, secondVertex: string) {
-    const first: Node = this.nodes.find(node => node.label == firstVertex);
-    const second: Node = this.nodes.find(node => node.label == secondVertex);
+    const first: Node = this.nodes.find((node) => node.label == firstVertex);
+    const second: Node = this.nodes.find((node) => node.label == secondVertex);
     const newLink: Link = { source: first, target: second };
     this.links.push(newLink);
     this.restart();
   }
 
   addHull(vertices: string[]) {
-    this.nodesInHull = this.nodes.filter(node => vertices.includes(node.label));
+    console.log(vertices);
+    this.nodesInHull = this.nodes.filter((node) => vertices.includes(node.label));
   }
 
   removeEdge(firstVertex: string, secondVertex: string) {
-    const edgeToRemove: Link = this.links.find(link => {
+    const edgeToRemove: Link = this.links.find((link) => {
       const src: Node = link.source;
-      const target: Node = link.target;
-      return (src.label === firstVertex && target.label === secondVertex) || (src.label === secondVertex && target.label === firstVertex)
+      const { target } = link;
+      return (src.label === firstVertex && target.label === secondVertex) || (src.label === secondVertex && target.label === firstVertex);
     });
-    const one = this.links[0];
     const ind = this.links.indexOf(edgeToRemove);
-    this.links.splice(ind, 1)
+    this.links.splice(ind, 1);
     this.restart();
   }
 
-  changeVertexColor(vertex: string, color: string): void {
-    this.nodeSvg.filter(node => node.label == vertex).style('fill', color);
+  changeVertexColor(vertex: string, color: string): void { // this is not in docs for now
+    this.nodeSvg.filter((node) => node.label == vertex).style('fill', color);
   }
 
   changeLabel(vertex: string, label: string) {
-    const node: Node = this.nodes.find(node => node.label == vertex);
+    const node: Node = this.nodes.find((node) => node.label == vertex);
     node.label = label;
     this.updateLabels();
   }
 
   private updateLabels() {
     this.svg.selectAll('text')
-      .data(this.nodes, node => node.id)
+      .data(this.nodes, (node) => node.id)
       .join(
-        enter => enter,
-        update => update.text(node => node.label),
-        exit => exit.remove()
+        (enter) => enter,
+        (update) => update.text((node) => node.label),
+        (exit) => exit.remove(),
       );
   }
 
@@ -369,7 +391,7 @@ export default class Graph {
   }
 
   private findAllIncomingEdgesOfVertex(vertex: Node) {
-    return this.links.filter((link: Link) => link.source === vertex || link.target === vertex)
+    return this.links.filter((link: Link) => link.source === vertex || link.target === vertex);
   }
 
   colorEdge(link: Link) {
@@ -378,14 +400,19 @@ export default class Graph {
     const newnew = [];
     newnew.push(sourceNode.label);
     newnew.push(targetNode.label);
-    const test = [newnew]
+    const test = [newnew];
     if (link.clicked) {
       link.clicked = false;
-      this.changeEdgesColor(test, "black");
+      this.changeEdgesColor(test, 'black');
     } else {
       link.clicked = true;
       this.changeEdgesColor(test, 'blue');
     }
+  }
+
+  curveEdge(firstNode: string, secondNode: string) {
+    const edge = this.findEdge(firstNode, secondNode);
+    edge.hasCurve = true;
   }
 
   moveGraph(x: number) {
@@ -394,32 +421,32 @@ export default class Graph {
 
   contractEdge(firstVertex: string, secondVertex: string) {
     const edgeToRemove: Link = this.findEdge(firstVertex, secondVertex);
-    const source: Node = edgeToRemove.source;
-    const target: Node = edgeToRemove.target;
+    const { source } = edgeToRemove;
+    const { target } = edgeToRemove;
     const inc = this.findAllIncomingEdgesOfVertex(source);
     const inc2 = this.findAllIncomingEdgesOfVertex(target);
-    let joinedEdges: Link[] = inc.concat(inc2);
-    this.links = this.links.filter((link: Link) => !joinedEdges.includes(link));
-    const linkToRemove = joinedEdges.find((link: Link) => link.source.label === firstVertex && link.source.label === secondVertex || link.source.label === secondVertex && link.target.label === firstVertex);
-    joinedEdges = joinedEdges.filter((link: Link) => link !== linkToRemove);
+    let allIncomingEdges: Link[] = inc.concat(inc2);
+    this.links = this.links.filter((link: Link) => !allIncomingEdges.includes(link));
+
+    const linkToRemove = allIncomingEdges.filter((link: Link) => link.source.label === firstVertex && link.target.label === secondVertex
+        || link.source.label === secondVertex && link.target.label === firstVertex);
+
+    allIncomingEdges = allIncomingEdges.filter((link: Link) => !linkToRemove.includes(link));
     this.nodes = this.nodes.filter((node: Node) => node.label !== secondVertex);
 
-    joinedEdges.forEach((link: Link) => {
+    allIncomingEdges.forEach((link: Link) => {
       if (link.source.label === secondVertex) link.source = target;
       if (link.target.label === secondVertex) link.target = target;
     });
 
-    this.links = joinedEdges;
-
-    console.log(this.nodes);
-    console.log(this.links);
+    this.links = allIncomingEdges;
     this.restart();
   }
 
   private findEdge(sourceNode: string, targetNode: string): Link {
-    return this.links.find(link => {
+    return this.links.find((link) => {
       const src: Node = link.source;
-      const target: Node = link.target;
+      const { target } = link;
       return (src.label === sourceNode && target.label === targetNode) || (src.label === targetNode && target.label === sourceNode);
     });
   }
@@ -463,4 +490,18 @@ function hull(points) {
   if (points.length < 2) return;
   if (points.length < 3) return d3.polygonHull([points[0], ...points]);
   return d3.polygonHull(points);
+}
+
+function linkArc(d) {
+  if (d.hasCurve) {
+    const x1 = d.source.x;
+    const y1 = d.source.y;
+    const x2 = d.target.x;
+    const y2 = d.target.y;
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dr = Math.sqrt(dx * dx + dy * dy);
+    return `M${x1} ${y1} A${dr} ${dr + 500}, 0, 0 1, ${x2} ${y2}`;
+  }
+  return `M${d.source.x} ${d.source.y} ${d.target.x}  ${d.target.y}`;
 }
