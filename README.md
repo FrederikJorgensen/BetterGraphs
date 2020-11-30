@@ -165,6 +165,14 @@ links: [
 ]
 ```
 
+<a name="colorEdgeOnRightClick" href="#colorEdgeOnRightClick">#</a> graph.<b>colorEdgeOnRightClick</b>(string)
+
+First argument is the color you want the edge to be colored.
+```js
+//  colorEdgeOnRightClick() example
+graph.colorEdgeOnRightClick("pink");
+```
+
 ## Roadmap
 ---
 - [x] Change color of vertices
