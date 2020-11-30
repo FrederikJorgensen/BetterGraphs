@@ -152,7 +152,26 @@ graph.contractEdge("1", "2");
 
 ## Roadmap
 ---
+- [x] Change color of vertices
+- [x] Change color of edges
+- [x] Create edge
+- [x] Remove edge
+- [x] create and remove vertices
+- [x] Labels
+- [x] Contract edge
+- [x] Add hull
+- [x] Generate a random graph
+- [x] Color subset of vertices
+- [x] Color subset of edges
+- [x] Change size of node
+- [x] Change size of edges
+- [x] Change edge color by clicking on it
 - [ ] Add live examples of methods
 - [ ] Ability for some edges to be curved
 - [ ] Label pointing to a vertex
 - [ ] Move graph to a specific coordinate
+- [ ] Label pointing to blob
+- [ ] Tooltip to vertex
+- [ ] Tooltip to blob
+- [ ] And re-layouting graphs (user can drag nodes to desired positions and take a snapshot)
+- [ ] Hull tube
