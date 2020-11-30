@@ -149,3 +149,10 @@ First argument is one of the endpoints of the edge you want to contract. The sec
 //  generateRandomGraph() example
 graph.contractEdge("1", "2");
 ```
+
+## Roadmap
+---
+[ ] Add live examples of methods
+[ ] Ability for some edges to be curved
+[ ] Label pointing to a vertex
+[ ] Move graph to a specific coordinate
