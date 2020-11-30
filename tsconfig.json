@@ -7,7 +7,7 @@
     "noImplicitAny": false,
     "sourceMap": true,
     "noLib": false,
-    "allowJs": true,
+    "allowJs": false,
     "suppressImplicitAnyIndexErrors": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
