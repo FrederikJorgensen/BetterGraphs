@@ -1,9 +1,21 @@
-#graph-container {
-  height: 100%;
-  width: 100%;
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans&display=swap');
+.graph_label {
+  font-family: 'PT Sans', sans-serif;
+  user-select: none;
+  font-weight: bold;
+  font-size: 1.2rem;
+  fill: #c2c2c2;
 }
 
-.graph_label {
-  user-select: none;
-  text-align: center;
+#container {
+  width: 750px;
+  height: 750px;
+}
+
+#node-label {
+  position: absolute;
+  background-color: white;
+  border: 3px solid black;
+  transform: translate(-100%, -2px);
+  padding: 0.3rem 0.8rem;
 }
