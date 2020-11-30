@@ -63,13 +63,7 @@ export default class Graph {
       .append('path')
       .style('stroke', '#a0c7e8')
       .style('fill', 'none')
-      .style('stroke-width', '3.5px');
-    // .attr('id', (link) => `link-${link.source}-${link.target}`)
-    // .attr('class', 'graphLink')
-    /*       .on('contextmenu', (event, edge) => {
-        event.preventDefault();
-        this.colorEdge(edge);
-      }); */
+      .style('stroke-width', '6.5px');
   }
 
   connect(d, i) {
@@ -394,7 +388,7 @@ export default class Graph {
     return this.links.filter((link: Link) => link.source === vertex || link.target === vertex);
   }
 
-  colorEdge(link: Link) {
+  colorEdge(link: Link, color: string) {
     const sourceNode: Node = link.source;
     const targetNode: Node = link.target;
     const newnew = [];
@@ -403,10 +397,10 @@ export default class Graph {
     const test = [newnew];
     if (link.clicked) {
       link.clicked = false;
-      this.changeEdgesColor(test, 'black');
+      this.changeEdgesColor(test, '#a0c7e8');
     } else {
       link.clicked = true;
-      this.changeEdgesColor(test, 'blue');
+      this.changeEdgesColor(test, color);
     }
   }
 
@@ -417,6 +411,13 @@ export default class Graph {
 
   moveGraph(x: number) {
     this.nodes.forEach((node: Node) => node.x = x);
+  }
+
+  colorEdgeOnRightClick(color: string) {
+    this.linkSvg.on('contextmenu', (event, edge) => {
+      event.preventDefault();
+      this.colorEdge(edge, color);
+    });
   }
 
   contractEdge(firstVertex: string, secondVertex: string) {
