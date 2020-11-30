@@ -150,6 +150,21 @@ First argument is one of the endpoints of the edge you want to contract. The sec
 graph.contractEdge("1", "2");
 ```
 
+<a name="curveEdge" href="#curveEdge">#</a> graph.<b>curveEdge</b>(string, string)
+
+First argument is one of the endpoints of the edge you want to curve. The second argument is the other endpoint.
+```js
+//  curveEdge() example
+graph.curveEdge("1", "2");
+```
+NOTE: When you create your `links` array for your graph you can alternatively pass in an attribute `hasCurve: true`.
+```js
+links: [
+  { source: 1, target: 2 },
+  { source: 2, target: 3, hasCurve: true}, // Curved link.
+]
+```
+
 ## Roadmap
 ---
 - [x] Change color of vertices
@@ -167,7 +182,7 @@ graph.contractEdge("1", "2");
 - [x] Change size of edges
 - [x] Change edge color by clicking on it
 - [ ] Add live examples of methods
-- [ ] Ability for some edges to be curved
+- [x] Ability for some edges to be curved
 - [ ] Label pointing to a vertex
 - [ ] Move graph to a specific coordinate
 - [ ] Label pointing to blob
