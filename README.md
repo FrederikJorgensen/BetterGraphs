@@ -190,3 +190,4 @@ links: [
 - [ ] Tooltip to blob
 - [ ] And re-layouting graphs (user can drag nodes to desired positions and take a snapshot)
 - [ ] Hull tube
+- [x] Right click edge to change color
