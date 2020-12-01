@@ -110,12 +110,12 @@ First argument is one of the endpoints of the edge you want to add. The second a
 graph.addEdge("4", "1");
 ```
 
-<a name="addHull" href="#addHull">#</a> graph.<b>addHull</b>(string[])
+<a name="addHull" href="#addHull">#</a> graph.<b>addHull</b>(string[], string)
 
-An array of vertices you want a blob around.
+An array of vertices you want a blob around. Second argument is the color of the hull;
 ```js
 //  addHull() example
-graph.addHull("1", "2");
+graph.addHull("1", "2", "pink");
 ```
 
 <a name="removeEdge" href="#removeEdge">#</a> graph.<b>removeEdge</b>(string, string)
@@ -199,10 +199,10 @@ graph.addLabel("4", "This is some text.");
 - [x] Change edge color by clicking on it
 - [ ] Add live examples of methods
 - [x] Ability for some edges to be curved
-- [ ] Label pointing to a vertex
-- [ ] Move graph to a specific coordinate
+- [x] Label pointing to a vertex
 - [ ] Label pointing to blob
-- [x] Tooltip to vertex
-- [ ] Tooltip to blob
+- [ ] Move graph to a specific coordinate
+- [ ] Vertex tooltip
+- [ ] Blob tooltip
 - [ ] And re-layouting graphs (user can drag nodes to desired positions and take a snapshot)
 - [ ] Hull tube
