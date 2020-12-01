@@ -115,8 +115,6 @@ export default class Graph {
       .getBoundingClientRect();
 
     this.tooltip
-      .html('yep')
-      .style('opacity', 1)
       .style('left', `${left}px`)
       .style('top', `${top}px`);
   }
@@ -138,6 +136,7 @@ export default class Graph {
       .nodes(this.nodes)
       .force('charge', d3.forceManyBody().strength(-100))
       .force('link', this.linkDis())
+      .force('collision', d3.forceCollide().radius(35))
       .on('tick', () => this.handleOnTick());
   }
 
@@ -155,6 +154,7 @@ export default class Graph {
       .attr('r', 30)
       .call(d3.drag()
         .on('start', (event, v: any) => {
+          d3.selectAll('circle').style('cursor', 'dragging');
           if (!event.active) this.simulation.alphaTarget(0.3).restart();
           [v.fx, v.fy] = [v.x, v.y];
         })
@@ -162,6 +162,7 @@ export default class Graph {
           [v.fx, v.fy] = [event.x, event.y];
         })
         .on('end', (event, v: any) => {
+          // this.svg.style('cursor', 'default');
           if (!event.active) this.simulation.alphaTarget(0);
           [v.fx, v.fy] = [null, null];
         }));
@@ -318,9 +319,45 @@ export default class Graph {
     this.restart();
   }
 
-  addHull(vertices: string[]) {
-    console.log(vertices);
+  addHull(vertices: string[], color: string) {
     this.nodesInHull = this.nodes.filter((node) => vertices.includes(node.label));
+    this.path.style('fill', color).style('stroke', color);
+  }
+
+  addLabelToBlob(text: string) {
+    this.addTooltip();
+    if (this.arrow) this.arrow.remove();
+
+    await this.timeout(2000);
+
+    const nod = document.getElementById('blob');
+    const x = nod.getAttribute('cx');
+    const y = nod.getAttribute('cy');
+
+    this.arrow = this.svg
+      .append('line')
+      .style('opacity', 1)
+      .attr('id', 'arrow-line')
+      .attr('x1', x - 70)
+      .attr('y1', y)
+      .attr('x2', x - nodeSvg.attr('r') - 4)
+      .attr('y2', y)
+      .attr('marker-end', 'url(#arrow)')
+      .attr('stroke', 'rgb(51, 51, 51)')
+      .attr('stroke-width', '3px');
+
+    const { top } = document
+      .getElementById('arrow-line')
+      .getBoundingClientRect();
+    const { left } = document
+      .getElementById('arrow-line')
+      .getBoundingClientRect();
+
+    this.tooltip
+      .html(text)
+      .style('opacity', 1)
+      .style('left', `${left}px`)
+      .style('top', `${top}px`);
   }
 
   removeEdge(firstVertex: string, secondVertex: string) {
@@ -362,6 +399,7 @@ export default class Graph {
   addHullPath() {
     this.path = this.svg
       .append('path')
+      .attr('id', 'blob')
       .attr('fill', 'orange')
       .attr('stroke', 'orange')
       .attr('stroke-width', 16)
@@ -383,6 +421,8 @@ export default class Graph {
     }
 
     this.path.attr('d', line(hull(pointArr)));
+    const nod = document.getElementById('blob');
+    console.log(nod);
   }
 
   createArrow() {
@@ -509,7 +549,6 @@ export default class Graph {
     this.labelledNode = node;
 
     const nodeSvg = d3.select(`#graph-node-${nodeLabel}`);
-    // console.log(nodeSvg.datum().x);
 
     await this.timeout(2000);
 
